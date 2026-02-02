@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hey Twin... 💌</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+      background: linear-gradient(135deg, #ffe6f2, #fff0f5, #f8e1e9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: #d63384;
+    }
+
+    h1 {
+      font-size: 3.8rem;
+      margin: 0.4em 0 1.2em;
+      text-shadow: 0 0 15px rgba(255, 182, 193, 0.8);
+      animation: float 3.2s ease-in-out infinite;
+    }
+
+    .buttons {
+      position: relative;
+      display: flex;
+      gap: 2.5rem;         
+      align-items: center;
+    }
+
+    button {
+      font-size: 2.3rem;
+      padding: 1.3rem 4rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+      transition: transform 0.12s, background 0.15s;
+    }
+
+    #yesBtn {
+      background: #ff69b4;
+      color: white;
+      z-index: 10;
+    }
+
+    #yesBtn:hover {
+      background: #ff1493;
+      transform: scale(1.1);
+    }
+
+    #noBtn {
+      background: #d3d3d3;
+      color: #444;
+      position: relative;   
+      user-select: none;
+      pointer-events: auto;
+      z-index: 5;
+    }
+
+    #noBtn:hover {
+      background: #bbb;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%     { transform: translateY(-16px); }
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 1.8rem;
+      pointer-events: none;
+      animation: drift 9s linear infinite;
+      opacity: 0.65;
+    }
+
+    @keyframes drift {
+      0%   { transform: translateY(110vh) rotate(0deg); }
+      100% { transform: translateY(-30vh) rotate(720deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Hey Twin...<br>would u be my valentine? 🥺💕</h1>
+
+  <div class="buttons">
+    <button id="yesBtn">Yes!! 💖</button>
+    <button id="noBtn">No 😔</button>
+  </div>
+
+  <script>
+    const noBtn = document.getElementById('noBtn');
+    let noBtnPos = { x: 0, y: 0 };           
+    let targetPos = { x: 0, y: 0 };
+    let currentPos = { x: 0, y: 0 };
+    let isRunning = false;
+
+    function animate() {
+      currentPos.x += (targetPos.x - currentPos.x) * 0.22;
+      currentPos.y += (targetPos.y - currentPos.y) * 0.22;
+
+      noBtn.style.transform = `translate(${currentPos.x}px, ${currentPos.y}px)`;
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+
+    function getClientCoords(e) {
+      if (e.touches && e.touches[0]) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY, isTouch: true };
+      }
+      return { x: e.clientX, y: e.clientY, isTouch: e.pointerType === 'touch' };
+    }
+
+    function handlePointer(e) {
+      const { x: clientX, y: clientY, isTouch } = getClientCoords(e);
+      if (clientX == null || clientY == null) return;
+
+      const rect = noBtn.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const dx = clientX - centerX;
+      const dy = clientY - centerY;
+      const distance = Math.hypot(dx, dy);
+
+      const threshold = isTouch ? 120 : 160;
+
+      if (distance < threshold) {
+        let escapeX = -dx * 3.8;
+        let escapeY = -dy * 3.8;
+
+        escapeX += (Math.random() - 0.5) * 80;
+        escapeY += (Math.random() - 0.5) * 80;
+
+        // compute absolute target and clamp to viewport so button stays visible
+        let newLeft = rect.left + escapeX;
+        let newTop = rect.top + escapeY;
+
+        newLeft = Math.max(8, Math.min(window.innerWidth - rect.width - 8, newLeft));
+        newTop = Math.max(8, Math.min(window.innerHeight - rect.height - 8, newTop));
+
+        targetPos.x = newLeft - rect.left;
+        targetPos.y = newTop - rect.top;
+
+        isRunning = true;
+      } else if (isRunning) {
+        targetPos.x *= 0.85;
+        targetPos.y *= 0.85;
+
+        if (Math.abs(targetPos.x) < 5 && Math.abs(targetPos.y) < 5) {
+          targetPos.x = 0;
+          targetPos.y = 0;
+          isRunning = false;
+        }
+      }
+    }
+
+    document.addEventListener('pointermove', handlePointer);
+    document.addEventListener('pointerdown', handlePointer);
+    document.addEventListener('touchstart', handlePointer, { passive: true });
+    document.addEventListener('touchmove', handlePointer, { passive: true });
+
+    document.getElementById('yesBtn').addEventListener('click', () => {
+      document.body.innerHTML = `
+        <div style="
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #ff9ec1, #ffdde1, #fff);
+          font-family: 'Comic Sans MS', cursive;
+          color: #c71585;
+          overflow: hidden;
+        ">
+          <h1 style="
+            font-size: 6.5rem;
+            margin: 0;
+            animation: bounce 1.5s infinite;
+            text-shadow: 0 0 35px #ffb6c1;
+          ">
+            YAYYYYYYYYYYYY!!! 💖🎉
+          </h1>
+
+          <p style="font-size: 3rem; margin: 1.8rem 0;">
+           FUCK YEAHHHH WISSAL SAID YESSSSS!
+          </p>
+
+          <!-- ← Replace with your own cute gif URL -->
+          <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExamRiMHZ3ZmJyNWt4cTVtdnp6M2Vvd200aGJrNHNsZWQ5MG5wc2ZxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fUQ4rhUZJYiQsas6WD/giphy.gif" alt="happy moment" style="
+            max-width: 80vw;
+            max-height: 45vh;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            margin: 2.5rem 0;
+          ">
+
+          <div style="font-size: 4.5rem; margin-top: 1.5rem;">
+            🎀 🍓 💞 🌸 ✨ 🫶 💘 🍰 🐾
+          </div>
+        </div>
+
+        <style>
+          @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50%     { transform: translateY(-35px); }
+          }
+        </style>
+      `;
+    });
+
+    function spawnHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.textContent = ['💗','💖','💕','✨','🌸','🍓','🫶'][Math.floor(Math.random()*7)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (7 + Math.random() * 10) + 's';
+      heart.style.fontSize = (1.2 + Math.random() * 3) + 'rem';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 18000);
+    }
+
+    setInterval(spawnHeart, 500);
+  </script>
+
+</body>
+</html>
